@@ -44,9 +44,22 @@ namespace DataAccessLayer.Data
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<BookEntity>()
-                .HasMany(b => b.SecondaryGenres)
-                .WithMany(g => g.SecondaryBooks)
-                .UsingEntity<BookGenreEntity>();
+            .HasMany(b => b.SecondaryGenres)
+            .WithMany(g => g.SecondaryBooks)
+            .UsingEntity<BookGenreEntity>(
+                j => j
+                    .HasOne<GenreEntity>()
+                    .WithMany()
+                    .HasForeignKey(bg => bg.SecondaryGenresId)
+                    .OnDelete(DeleteBehavior.Restrict), // or NoAction
+                j => j
+                    .HasOne<BookEntity>()
+                    .WithMany()
+                    .HasForeignKey(bg => bg.SecondaryBooksId)
+                    .OnDelete(DeleteBehavior.Restrict)  // or NoAction
+            );
+
+
 
             modelBuilder.Entity<BookEntity>()
                 .HasOne(b => b.Publisher)
@@ -103,7 +116,7 @@ namespace DataAccessLayer.Data
                 .WithOne(r => r.AccountInfo)
                 .HasForeignKey<LocalIdentityUser>(u => u.UserId);
 
-            DataInitializer.Seed(modelBuilder);
+            DataInitializerManual.Seed(modelBuilder);
 
             base.OnModelCreating(modelBuilder);
         }
