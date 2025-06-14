@@ -1,4 +1,4 @@
-using BusinessLayer.Services;
+﻿using BusinessLayer.Services;
 using DataAccessLayer.Data;
 using DataAccessLayer.Entities;
 using Microsoft.AspNetCore.Identity;
@@ -114,5 +114,16 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+
+    var db = services.GetRequiredService<BookHubDbContext>();
+    db.Database.Migrate(); // 🆕 Apply EF Core Migrations
+
+    await SeedRoles(services); // Existing role seeding
+
+}
 
 app.Run();
