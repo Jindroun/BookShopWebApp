@@ -3,6 +3,8 @@ using DataAccessLayer.Data;
 using DataAccessLayer.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using System;
 using WebMVC;
 using WebMVC.Middleware;
 
@@ -11,13 +13,17 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<BookHubDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
+
+/*
+builder.Services.AddDbContext<BookHubDbContext>(options =>
 {
     var appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
     var dbName = "bookhub.db";
     var dbPath = Path.Combine(appDataPath, dbName);
     options.UseSqlite($"Data Source={dbPath}");
 });
-
+*/
 builder.Services.AddServices();
 builder.Services.AddAutoMapper(typeof(AutoMapperMvcProfile));
 
