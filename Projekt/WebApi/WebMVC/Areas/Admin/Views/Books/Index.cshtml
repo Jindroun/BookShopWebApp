@@ -1,0 +1,209 @@
+﻿@{
+    Layout = "_Layout";
+}
+@model BooksViewModel
+
+<div class="container mt-5">
+    <h2 class="my-4">Books Management</h2>
+
+    <table class="table table-striped table-bordered" id="booksTable">
+        <thead class="thead-dark">
+            <tr>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Publisher</th>
+                <th>Genre</th>
+                <th>Isbn</th>
+                <th>Description</th>
+                <th>Actions</th>
+                <th>Delete</th> <!-- New column for Delete/Cancel -->
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var book in Model.Books)
+            {
+                <tr data-book-id="@book.Id">
+                    <td><input type="text" class="form-control" value="@book.Title" data-field="Title" /></td>
+                    <td>
+                        <select class="form-control" data-field="AuthorId">
+                            @foreach (var author in Model.Authors)
+                            {
+                                <option value="@author.Id" @(author.Id == book.AuthorId ? "selected" : "")>@author.FirstName @author.LastName</option>
+                            }
+                        </select>
+                    </td>
+                    <td>
+                        <select class="form-control" data-field="PublisherId">
+                            @foreach (var publisher in Model.Publishers)
+                            {
+                                <option value="@publisher.Id" @(publisher.Id == book.PublisherId ? "selected" : "")>@publisher.Name</option>
+                            }
+                        </select>
+                    </td>
+                    <td>
+                        <select class="form-control" data-field="GenreId">
+                            @foreach (var genre in Model.Genres)
+                            {
+                                <option value="@genre.Id" @(genre.Id == book.GenreId ? "selected" : "")>@genre.Name</option>
+                            }
+                        </select>
+                    </td>
+                    <td><input type="text" class="form-control" value="@book.Isbn" data-field="Isbn" /></td>
+                    <td><input type="text" class="form-control" value="@book.Description" data-field="Description" /></td>
+                    <td>
+                        <button class="btn btn-primary btn-save">Save</button>
+                    </td>
+                    <td>
+                        <button class="btn btn-danger btn-delete">Delete</button>
+                    </td>
+                </tr>
+            }
+            <tr id="newBookRow" style="display:none;">
+                <td><input type="text" class="form-control" data-field="Title" placeholder="Enter title" /></td>
+                <td>
+                    <select class="form-control" data-field="AuthorId">
+                        @foreach (var author in Model.Authors)
+                        {
+                            <option value="@author.Id">@author.FirstName @author.LastName</option>
+                        }
+                    </select>
+                </td>
+                <td>
+                    <select class="form-control" data-field="PublisherId">
+                        @foreach (var publisher in Model.Publishers)
+                        {
+                            <option value="@publisher.Id">@publisher.Name</option>
+                        }
+                    </select>
+                </td>
+                <td>
+                    <select class="form-control" data-field="GenreId">
+                        @foreach (var genre in Model.Genres)
+                        {
+                            <option value="@genre.Id">@genre.Name</option>
+                        }
+                    </select>
+                </td>
+                <td><input type="text" class="form-control" data-field="Isbn" placeholder="Enter ISBN" /></td>
+                <td><input type="text" class="form-control" data-field="Description" placeholder="Enter description" /></td>
+                <td>
+                    <button class="btn btn-success btn-save">Save</button>
+                </td>
+                <td>
+                    <button class="btn btn-secondary btn-cancel-new">Cancel</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <button class="btn btn-success my-3" id="addNewBookButton"><i class="fas fa-plus"></i> Add New Book</button>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Save button functionality for existing books
+            $('.btn-save').click(function () {
+                var row = $(this).closest('tr');
+                var bookId = row.data('book-id'); // Only for existing books
+                if (!bookId) return; // Ignore new book save button
+
+                var updatedBook = {
+                    Id: bookId,
+                    Title: row.find('input[data-field="Title"]').val(),
+                    AuthorId: row.find('select[data-field="AuthorId"]').val(),
+                    PublisherId: row.find('select[data-field="PublisherId"]').val(),
+                    GenreId: row.find('select[data-field="GenreId"]').val(),
+                    Isbn: row.find('input[data-field="Isbn"]').val(),
+                    Description: row.find('input[data-field="Description"]').val(),
+                };
+
+                // Make AJAX call to update the book
+                $.ajax({
+                    url: '/Admin/Books/Edit',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(updatedBook),
+                    success: function (response) {
+                        if (response.success) {
+                            alert('Book updated successfully!');
+                        } else {
+                            alert('Error updating book.');
+                        }
+                    },
+                    error: function () {
+                        alert('Failed to save changes.');
+                    }
+                });
+            });
+
+            // Delete button functionality for books
+            $('.btn-delete').click(function () {
+                var row = $(this).closest('tr');
+                var bookId = row.data('book-id');
+
+                // Make AJAX call to delete the book
+                $.ajax({
+                    url: '/Admin/Books/Delete/' + bookId,
+                    type: 'POST',
+                    success: function (response) {
+                        if (response.success) {
+                            row.remove();
+                            alert('Book deleted successfully!');
+                        } else {
+                            alert('Error deleting book.');
+                        }
+                    },
+                    error: function () {
+                        alert('Failed to delete book.');
+                    }
+                });
+            });
+
+            // Add New Book button functionality
+            $('#addNewBookButton').click(function () {
+                $('#newBookRow').show();
+                $('#addNewBookButton').hide();
+            });
+
+            // Cancel button functionality for adding a new book
+            $('.btn-cancel-new').click(function () {
+                $('#newBookRow').hide();
+                $('#addNewBookButton').show();
+            });
+
+            // Save New Book button functionality
+            $('#newBookRow .btn-success').click(function () {
+                var row = $('#newBookRow');
+                var newBook = {
+                    Title: row.find('input[data-field="Title"]').val(),
+                    AuthorId: row.find('select[data-field="AuthorId"]').val(),
+                    PublisherId: row.find('select[data-field="PublisherId"]').val(),
+                    GenreId: row.find('select[data-field="GenreId"]').val(),
+                    Isbn: row.find('input[data-field="Isbn"]').val(),
+                    Description: row.find('input[data-field="Description"]').val(),
+                };
+
+                // Make AJAX call to create the new book
+                $.ajax({
+                    url: '/Admin/Books/Create',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(newBook),
+                    success: function (response) {
+                        if (response.success) {
+                            location.reload(); // Reload the page to show the new book in the list
+                            alert('Book created successfully!');
+                        } else {
+                            alert('Error adding new book.');
+                        }
+                    },
+                    error: function () {
+                        alert('Failed to add new book.');
+                    }
+                });
+            });
+        });
+    </script>
+}
+

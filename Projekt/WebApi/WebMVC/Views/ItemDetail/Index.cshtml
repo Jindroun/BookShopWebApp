@@ -1,0 +1,23 @@
+﻿@model ItemDetailViewModel
+
+<div class="container">
+    <h1>@Model.shopItem.BookTitle</h1>
+    <h5>By @Model.shopItem.AuthorFirstName @Model.shopItem.AuthorLastName</h5>
+    <a> @Model.shopItem.Description</a>
+
+    <p>
+        <strong>Price:</strong> €@Model.shopItem.Price<br />
+        <strong>Stock:</strong> @Model.shopItem.Stock<br />
+        <strong>Genre:</strong> @Model.shopItem.Genre<br />
+    </p>
+
+    <form method="post" action="@Url.Action("AddToCart", "ShoppingCart")">
+        <input type="hidden" name="ShopItemId" value="@Model.shopItem.Id" />
+        <input type="hidden" name="BookTitle" value="@Model.shopItem.BookTitle" />
+        <input type="hidden" name="Price" value="@Model.shopItem.Price" />
+        <input type="number" name="Count" value="1" min="1" />
+
+        <button type="submit" class="btn btn-primary">Add to Cart</button>
+    </form>
+
+</div>

@@ -1,0 +1,64 @@
+﻿@model ShoppingCartViewModel
+
+<div class="container mt-4">
+    <!-- Cart Items Section -->
+    <div class="row">
+        @foreach (var item in Model.CartItems)
+        {
+            <div class="col-12 mb-4">
+                <div class="card shadow-sm">
+                    <div class="card-body d-flex justify-content-between">
+                        <!-- Book Title with link to ItemDetail -->
+                        <div>
+                            <h5 class="card-title">
+                                <a href="@Url.Action("Index", "ItemDetail", new { id = item.ShopItemId })" class="text-decoration-none text-dark">@item.BookTitle</a>
+                            </h5>
+                            <p class="card-text">
+                                <strong>Price:</strong> €@item.Price <br />
+                                <strong>Quantity:</strong> @item.Count <br />
+                                <strong>Subtotal:</strong> €@(item.Price * item.Count)<br />
+
+                            </p>
+                        </div>
+
+                        <!-- Remove Button -->
+                        <div>
+                            <form action="@Url.Action("RemoveFromCart", "ShoppingCart", new { id = item.ShopItemId })" method="post">
+                                <button type="submit" class="btn btn-danger btn-sm">Remove</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Cart Total Section -->
+    <div class="row mt-4">
+        <div class="col-12 text-end">
+            <div class="mb-2">
+                <form method="get">
+                    <label for="code">Coupon code</label>
+                    <input type="text" name="code" value="@Model.CouponCode?.Code" />
+                    <input type="Submit" value="Apply" />
+                </form>
+                <p>@Model.CouponInfoMessage</p>
+            </div>
+            <h4 class="text-right">
+                <strong>Total:</strong> €@Model.FinalPrice
+            </h4>
+            <!-- Checkout Button (optional) -->
+            @if (Model.CartItems != null && Model.CartItems.Any())
+            {
+                <form action="@Url.Action("Checkout", "ShoppingCart", new { code = Model.CouponCode?.Code })" method="post">
+                    <button type="submit" class="btn btn-success">Checkout</button>
+                </form>
+            }
+            else
+            {
+                <p>Your cart is empty.</p>
+            }
+
+        </div>
+    </div>
+</div>

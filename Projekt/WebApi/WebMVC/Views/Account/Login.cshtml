@@ -1,0 +1,88 @@
+﻿@model LoginViewModel
+
+<h2>Login</h2>
+<form asp-action="Login" method="post" class="registration-form">
+    <div class="form-group">
+        <label asp-for="UserName" class="control-label"></label>
+        <input asp-for="UserName" class="form-control" />
+        <span asp-validation-for="UserName" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Password" class="control-label"></label>
+        <input asp-for="Password" type="password" class="form-control" />
+        <span asp-validation-for="Password" class="text-danger"></span>
+    </div>
+
+    <div class="form-group d-flex align-items-center">
+        <input asp-for="RememberMe" type="checkbox" style="width: auto; height: auto; margin-right: 5px;" />
+        <label asp-for="RememberMe" class="form-check-label mb-0">Remember me</label>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Login</button>
+
+    @Html.ValidationSummary(false, "", new { @class = "text-danger" })
+</form>
+
+<style>
+    .registration-form {
+        max-width: 500px;
+        margin: 0 auto;
+        padding: 1.5rem;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+    }
+
+    .form-group {
+        margin-bottom: 1rem;
+    }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+
+    .form-check {
+        margin-top: 0.5rem;
+    }
+
+    .form-check-label {
+        font-weight: normal;
+        display: inline-block;
+    }
+
+    /* This is the important part to fix the alignment */
+    .mb-0 {
+        margin-bottom: 0;
+    }
+
+    .btn {
+        padding: 0.5rem 1rem;
+        font-size: 1rem;
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        color: white;
+    }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+    .text-danger {
+        color: #d9534f;
+    }
+</style>

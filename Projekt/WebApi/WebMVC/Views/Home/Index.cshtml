@@ -1,0 +1,138 @@
+﻿@model LandingPageViewModel
+
+<div class="container">
+    <div class="row mb-3">
+        <div class="container mt-2">
+            <div class="position-relative">
+                <input type="text"
+                       id="searchInput"
+                       class="form-control"
+                       placeholder="Search for books, authors, or genres..." />
+
+                <div id="searchDropdown"
+                     class="dropdown-menu w-100 shadow"
+                     style="display: none; max-height: 300px; overflow-y: auto;">
+                    <!-- Results will be populated here by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="row">
+        @foreach (var item in Model.ShopItems)
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <a href="@Url.Action("Index", "ItemDetail", new { id = item.Id })" class="text-primary">
+                                @item.BookTitle
+                            </a>
+                        </h5>
+                        <h6 class="card-subtitle text-muted">@item.AuthorFirstName @item.AuthorLastName</h6>
+                        <p class="card-text">
+                            <strong>Price:</strong> €@item.Price <br />
+                            <strong>Genre:</strong> @item.Genre <br />
+                            <strong>Stock:</strong> @item.Stock
+                        </p>
+                    </div>
+                    <div class="card-footer text-center">
+                        <form method="post" action="@Url.Action("AddToCart", "ShoppingCart")">
+                            <input type="hidden" name="ShopItemId" value="@item.Id" />
+                            <input type="hidden" name="BookTitle" value="@item.BookTitle" />
+                            <input type="hidden" name="Price" value="@item.Price" />
+                            <input type="number" name="Count" value="1" min="1" />
+
+                            <button type="submit" class="btn btn-primary">Add to Cart</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+    <!-- Pagination Controls -->
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+            @for (var i = 1; i <= Model.TotalPages; i++)
+            {
+                <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                    <a class="page-link" href="@Url.Action("Index", new { page = i })">@i</a>
+                </li>
+            }
+        </ul>
+    </nav>
+</div>
+
+<script>
+    let debounceTimeout;
+    const searchInput = document.getElementById("searchInput");
+    const dropdown = document.getElementById("searchDropdown");
+
+    searchInput.addEventListener("keyup", (event) => {
+        const query = event.target.value.trim();
+
+        // Clear previous timeout
+        clearTimeout(debounceTimeout);
+
+        // Only send requests if there's input
+        if (query.length > 0) {
+            debounceTimeout = setTimeout(() => {
+                fetch(`/Home/SearchBooks?query=${encodeURIComponent(query)}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! Status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        const { books, authors, genres } = data;
+
+                        let booksHtml = '<div class="px-3 mb-1 border-bottom"><strong>Books</strong></div>';
+                        if (books.length > 0) {
+                            booksHtml += books.map(book => `
+                                <a href="/ItemDetail/Index/${book.id}" class="dropdown-item">
+                                    <strong>${book.bookTitle}</strong><br />
+                                    <small>by ${book.authorFirstName} ${book.authorLastName}</small>
+                                </a>
+                            `).join('');
+                        } else {
+                            booksHtml += '<span class="dropdown-item text-muted">No books found</span>';
+                        }
+
+                        let authorsHtml = '<div class="px-3 mb-1 border-bottom"><strong>Authors</strong></div>';
+                        if (authors.length > 0) {
+                            authorsHtml += authors.map(author => `
+                                    <span class="dropdown-item">
+                                        ${author.firstName} ${author.lastName}
+                                    </span>
+                            `).join('');
+                        } else {
+                            authorsHtml += '<span class="dropdown-item text-muted">No authors found</span>';
+                        }
+
+                        let genresHtml = '<div class="px-3 mb-1 border-bottom"><strong>Genres</strong></div>';
+                        if (genres.length > 0) {
+                            genresHtml += genres.map(genre => `
+                                    <span class="dropdown-item">${genre.name}</span>
+                            `).join('');
+                        } else {
+                            genresHtml += '<span class="dropdown-item text-muted">No genres found</span>';
+                        }
+
+                        dropdown.innerHTML = booksHtml + authorsHtml + genresHtml;
+                        dropdown.style.display = "block";
+                    })
+                    .catch(error => {
+                        console.error("Error fetching search results:", error);
+                        dropdown.style.display = "none";
+                    });
+            }, 300); // Debounce by 300ms
+        } else {
+            dropdown.style.display = "none"; // Hide dropdown if input is empty
+        }
+    });
+
+
+</script>
+
+

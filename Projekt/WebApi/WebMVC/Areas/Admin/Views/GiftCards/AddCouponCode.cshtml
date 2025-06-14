@@ -1,0 +1,26 @@
+@using WebMVC.Areas.Admin.Models
+@model AddCouponCodeViewModel
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Add Coupon Code";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<form asp-action="AddCouponCode" method="post">
+    <div class="form-group">
+        <label asp-for="Code" class="control-label">Code</label>
+        <input type="text" asp-for="Code" class="form-control" />
+        <span asp-validation-for="Code" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="GiftCardId" class="control-label">Gift Card ID</label>
+        <input type="number" asp-for="GiftCardId" value="@Model.GiftCardId" class="form-control" />
+        <span asp-validation-for="GiftCardId" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <input type="submit" value="Add Coupon Code" class="btn btn-primary" />
+    </div>
+</form>

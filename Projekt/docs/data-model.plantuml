@@ -1,0 +1,121 @@
+@startuml
+skinparam linetype ortho
+
+entity Book {
+  *Id: int <<generated>>
+  --
+  *Name: string
+  PublisherId: int <<FK>>
+  ISBN: string
+  Description: string
+}
+
+entity Author {
+  *Id: int <<generated>>
+  --
+  *FirstName: string
+  *LastName: string
+}
+
+entity BookAuthor {
+  AuthorId: int <<FK>>
+  BookId: int <<FK>>
+}
+
+entity Publisher {
+  *Id: int <<generated>>
+  --
+  *Name: string
+}
+
+entity Genre {
+  *Id: int <<generated>>
+  --
+  Name: string
+}
+
+entity BookGenre {
+  BookId: int <<FK>>
+  GenreId: int <<FK>>
+}
+
+entity ShopItem {
+  *Id: int <<generated>>
+  --
+  *BookId: int <<FK>>
+  *Stock: int
+  *Price: decimal
+}
+
+entity User {
+  *Id: int <<generated>>
+  --
+  *Mail: string
+  Name: string
+  Password: string
+  *AddressId: int <<FK>>
+  Phone: string
+  *IsAdmin: bool
+}
+
+entity Order {
+  *Id: int <<generated>>
+  --
+  *UserId: int <<FK>>
+  *AddressId: int <<FK>>
+  *PlacedDate: DateTime
+  *State: enum(Unpaid, Paid, Sent, Fullfilled, Cancelled)
+  *TotalPrice: decimal
+}
+
+entity OrderItem {
+  *ShopItemId: int <<FK>>
+  *OrderId: int <<FK>>
+  --
+  *Count: int
+  *PricePerItem: decimal
+}
+
+entity Rating {
+  *UserId: int <<FK>>
+  *BookId: int <<FK>>
+  --
+  Stars: int
+  Note: string
+}
+
+entity WishlistEntry {
+  *UserId: int <<FK>>
+  *BookId: int <<FK>>
+}
+
+entity Address {
+  *Id: int <<generated>>
+  --
+  *UserId: int <<FK>>
+  Street: string
+  City: string
+  PostalCode: string
+  Country: string
+}
+
+Book }o--o| Publisher
+Book ||--o{ BookAuthor
+Author ||--o{ BookAuthor
+Book ||--o{ ShopItem
+Book ||--o{ BookGenre
+Genre ||--o{ BookGenre
+
+User ||--o{ Rating
+Book ||--o{ Rating
+
+User ||--o{ WishlistEntry
+Book ||--o{ WishlistEntry
+
+User ||--o{ Order
+Order ||--|{ OrderItem
+ShopItem ||--o{ OrderItem
+
+Address ||--|| User
+Address ||--o{ Order
+@enduml

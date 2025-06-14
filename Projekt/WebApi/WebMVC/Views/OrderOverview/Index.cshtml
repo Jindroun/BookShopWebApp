@@ -1,0 +1,55 @@
+﻿@model WebMVC.Models.OrderOverviewViewModel
+
+<div class="container mt-5">
+    <h1 class="mb-4">Order Overview</h1>
+
+    @if (!Model.Orders.Any())
+    {
+        <div class="alert alert-warning" role="alert">
+            No orders found.
+        </div>
+    }
+    else
+    {
+        <table class="table table-bordered table-striped">
+            <thead class="thead-dark">
+                <tr>
+                    <th scope="col">Order Id</th>
+                    <th scope="col">User</th>
+                    <th scope="col">Date</th>
+                    <th scope="col">State</th>
+                    <th scope="col">Address</th>
+                    <th scope="col">Total Price</th>
+                    <th scope="col">Coupon</th>
+                    <th scope="col">Final Price</th>
+                    <th scope="col">Order Items</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var order in Model.Orders)
+                {
+                    <tr>
+                        <th>@order.Id</th>
+                        <td>@(order.UserFirstName + " " + order.UserLastName)</td>
+                        <td>@order.Date.ToString("dd/MM/yyyy")</td>
+                        <td>@order.State</td>
+                        <td>
+                            @order.Street, @order.City, @order.PostalCode, @order.Country
+                        </td>
+                        <td>€@order.TotalPrice.ToString("F2")</td>
+                        <td>@(order.CouponCode == null? "" : $"{order.CouponCode.Code}: €{order.CouponCode.GiftCard.Discount}")</td>
+                        <td>€@order.FinalPrice.ToString("F2")</td>
+                        <td>
+                            <ul>
+                                @foreach (var item in order.OrderItems)
+                                {
+                                    <li>@item.Count x @item.BookTitle</li>
+                                }
+                            </ul>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>

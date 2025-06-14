@@ -1,0 +1,149 @@
+﻿@{
+    Layout = "_Layout";
+}
+@model WebMVC.Areas.Admin.Models.AuthorsViewModel
+
+<div class="container mt-5">
+    <h2 class="my-4">Authors Management</h2>
+
+    <table class="table table-striped table-bordered" id="authorsTable">
+        <thead class="thead-dark">
+            <tr>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Save</th>
+                <th>Delete</th> <!-- New column for Delete/Cancel -->
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var author in Model.Authors)
+            {
+                <tr data-author-id="@author.Id">
+                    <td>
+                        <input type="text" class="form-control" value="@author.FirstName" data-field="FirstName" />
+                    </td>
+                    <td>
+                        <input type="text" class="form-control" value="@author.LastName" data-field="LastName" />
+                    </td>
+                    <td>
+                        <button class="btn btn-primary btn-save">Save</button>
+                    </td>
+                    <td>
+                        <button class="btn btn-danger btn-delete">Delete</button>
+                    </td>
+                </tr>
+            }
+            <tr id="newAuthorRow" style="display:none;">
+                <td><input type="text" class="form-control" data-field="FirstName" placeholder="Enter first name" /></td>
+                <td><input type="text" class="form-control" data-field="LastName" placeholder="Enter last name" /></td>
+                <td>
+                    <button class="btn btn-success btn-save">Save</button>
+                </td>
+                <td>
+                    <button class="btn btn-secondary btn-cancel-new">Cancel</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <button class="btn btn-success my-3" id="addNewAuthorButton"><i class="fas fa-plus"></i> Add New Author</button>
+</div>
+
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Save button functionality for existing authors
+            $('.btn-save').click(function () {
+                var row = $(this).closest('tr');
+                var authorId = row.data('author-id'); // Only for existing authors
+
+                var updatedAuthor = {
+                    Id: authorId,
+                    FirstName: row.find('input[data-field="FirstName"]').val(),
+                    LastName: row.find('input[data-field="LastName"]').val()
+                };
+
+                // Make AJAX call to update the author
+                $.ajax({
+                    url: '/Admin/Authors/Edit',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(updatedAuthor),
+                    success: function (response) {
+                        if (response.success) {
+                            alert('Author updated successfully!');
+                        } else {
+                            alert('Error updating author: ' + response.message);
+                        }
+                    },
+                    error: function () {
+                        alert('Failed to save changes.');
+                    }
+                });
+            });
+
+            // Delete button functionality for authors
+            $('.btn-delete').click(function () {
+                var row = $(this).closest('tr');
+                var authorId = row.data('author-id');
+
+                // Make AJAX call to delete the author
+                $.ajax({
+                    url: '/Admin/Authors/Delete/' + authorId,
+                    type: 'POST',
+                    success: function (response) {
+                        if (response.success) {
+                            row.remove();
+                            alert('Author deleted successfully!');
+                        } else {
+                            alert('Error deleting author: ' + response.message);
+                        }
+                    },
+                    error: function () {
+                        alert('Failed to delete author.');
+                    }
+                });
+            });
+
+            // Add New Author button functionality
+            $('#addNewAuthorButton').click(function () {
+                $('#newAuthorRow').show();
+                $('#addNewAuthorButton').hide();
+            });
+
+            // Cancel button functionality for adding a new author
+            $('.btn-cancel-new').click(function () {
+                $('#newAuthorRow').hide();
+                $('#addNewAuthorButton').show();
+            });
+
+            // Save New Author button functionality
+            $('#newAuthorRow .btn-success').click(function () {
+                var row = $('#newAuthorRow');
+                var newAuthor = {
+                    FirstName: row.find('input[data-field="FirstName"]').val(),
+                    LastName: row.find('input[data-field="LastName"]').val()
+                };
+
+                // Make AJAX call to create the new author
+                $.ajax({
+                    url: '/Admin/Authors/Create',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(newAuthor),
+                    success: function (response) {
+                        if (response.success) {
+                            location.reload(); // Reload the page to show the new author in the list
+                        } else {
+                            alert('Error adding new author: ' + response.message);
+                        }
+                    },
+                    error: function () {
+                        alert('Failed to add new author.');
+                    }
+                });
+            });
+        });
+    </script>
+}

@@ -1,0 +1,13 @@
+﻿@{
+    Layout = "_Layout";
+}
+<h1>Admin Dashboard</h1>
+
+<ul>
+    <li><a href="@Url.Action("Index", "Books", new { area = "Admin" })">Manage Books</a></li>
+    <li><a href="@Url.Action("Index", "Authors", new { area = "Admin" })">Manage Authors</a></li>
+    <li><a href="@Url.Action("Index", "Genres", new { area = "Admin" })">Manage Genres</a></li>
+    <li><a href="@Url.Action("Index", "Orders", new { area = "Admin" })">Manage Orders</a></li>
+    <li><a href="@Url.Action("Index", "GiftCards", new { area = "Admin" })">Manage Gift Cards</a></li>
+    <li><a href="@Url.Action("Index", "Users", new { area = "Admin" })">Manage Users</a></li>
+</ul>

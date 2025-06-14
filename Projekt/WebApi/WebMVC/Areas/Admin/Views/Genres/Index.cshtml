@@ -1,0 +1,144 @@
+﻿@{
+    Layout = "_Layout";
+}
+@model WebMVC.Areas.Admin.Models.GenresViewModel
+
+<div class="container mt-5">
+    <h2 class="my-4">Genres Management</h2>
+
+    <table class="table table-striped table-bordered" id="genresTable">
+        <thead class="thead-dark">
+            <tr>
+                <th>Genre Name</th>
+                <th>Actions</th>
+                <th>Delete</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var genre in Model.Genres)
+            {
+                <tr data-genre-id="@genre.Id">
+                    <td>
+                        <input type="text" class="form-control" value="@genre.Name" data-field="Name" />
+                    </td>
+                    <td>
+                        <button class="btn btn-primary btn-save">Save</button>
+                    </td>
+                    <td>
+                        <button class="btn btn-danger btn-delete">Delete</button>
+                    </td>
+                </tr>
+            }
+            <tr id="newGenreRow" style="display:none;">
+                <td><input type="text" class="form-control" data-field="Name" placeholder="Enter genre name" /></td>
+                <td>
+                    <button class="btn btn-success btn-save-new">Save</button>
+                </td>
+                <td>
+                    <button class="btn btn-secondary btn-cancel-new">Cancel</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <button class="btn btn-success my-3" id="addNewGenreButton"><i class="fas fa-plus"></i> Add New Genre</button>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Save button functionality for existing genres
+            $('.btn-save').click(function () {
+                var row = $(this).closest('tr');
+                var genreId = row.data('genre-id'); // Only for existing genres
+                if (!genreId) return; // Ignore new genre save button
+
+                var updatedGenre = {
+                    Id: genreId,
+                    Name: row.find('input[data-field="Name"]').val()
+                };
+
+                // Make AJAX call to update the genre
+                $.ajax({
+                    url: '/Admin/Genres/Edit',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(updatedGenre),
+                    success: function (response) {
+                        if (response.success) {
+                            alert('Genre updated successfully!');
+                        } else {
+                            alert('Error updating genre.');
+                        }
+                    },
+                    error: function () {
+                        alert('Failed to save changes.');
+                    }
+                });
+            });
+
+            // Delete button functionality for genres
+            $('.btn-delete').click(function () {
+                var row = $(this).closest('tr');
+                var genreId = row.data('genre-id');
+
+                // Make AJAX call to delete the genre
+                $.ajax({
+                    url: '/Admin/Genres/Delete/' + genreId,
+                    type: 'POST',
+                    success: function (response) {
+                        if (response.success) {
+                            row.remove();
+                            alert('Genre deleted successfully!');
+                        } else {
+                            alert('Error deleting genre.');
+                        }
+                    },
+                    error: function () {
+                        alert('Failed to delete genre.');
+                    }
+                });
+            });
+
+            // Add New Genre button functionality
+            $('#addNewGenreButton').click(function () {
+                $('#newGenreRow').show();
+                $('#addNewGenreButton').hide();
+            });
+
+            // Cancel button functionality for adding a new genre
+            $('.btn-cancel-new').click(function () {
+                $('#newGenreRow').hide();
+                $('#addNewGenreButton').show();
+            });
+
+            // Save New Genre button functionality
+            $('#newGenreRow .btn-success').click(function () {
+                var row = $('#newGenreRow');
+                var newGenre = {
+                    Name: row.find('input[data-field="Name"]').val()
+                };
+
+                // Make AJAX call to create the new genre
+                $.ajax({
+                    url: '/Admin/Genres/Create',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(newGenre),
+                    success: function (response) {
+                        if (response.success) {
+                            location.reload(); // Reload the page to show the new genre in the list
+                            alert('Genre created successfully!');
+                        } else {
+                            alert('Error adding new genre.');
+                        }
+                    },
+                    error: function () {
+                        alert('Failed to add new genre.');
+                    }
+                });
+            });
+        });
+    </script>
+}
+

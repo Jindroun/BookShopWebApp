@@ -1,0 +1,40 @@
+image: "mcr.microsoft.com/dotnet/sdk:8.0"
+
+stages:
+  - build
+  - test
+
+variables:
+  DOTNET_CLI_TELEMETRY_OPTOUT: "true"
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: "true"
+  SOLUTION_ROOT: "WebApi"
+
+default:
+  tags:
+    - shared-fi
+
+before_script:
+  - apt-get update -qq
+  - cd $SOLUTION_ROOT || echo "Failed to cd to $SOLUTION_ROOT"
+  - dotnet dev-certs https && dotnet dev-certs https --trust
+  - dotnet restore
+
+build:
+  stage: build
+  script:
+    - echo "Initiating build of $SOLUTION_ROOT"
+    - dotnet build
+
+update_database:
+    stage: build
+    script:
+        - dotnet tool install --global dotnet-ef
+        - export PATH="$PATH:/root/.dotnet/tools"   
+        - echo "Updating database for $SOLUTION_ROOT"
+        - dotnet-ef database update --project DataAccessLayer --context BookHubDbContext --startup-project WebApi 
+
+test:
+  stage: test
+  script:
+    - echo "Running tests for $SOLUTION_ROOT"
+    - dotnet test --verbosity normal
