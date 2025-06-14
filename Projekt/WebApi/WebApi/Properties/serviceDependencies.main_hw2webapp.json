@@ -1,0 +1,12 @@
+{
+  "dependencies": {
+    "mssql1": {
+      "serviceConnectorResourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.ServiceLinker/locations/westus/connectors/ConnectionStringsBookHubDbContext_5CEAB87E9F",
+      "secretStore": "AzureAppSettings",
+      "resourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.Sql/servers/hw2-server/databases/HW2_Db",
+      "type": "mssql.azure",
+      "connectionId": "ConnectionStrings:BookHubDbContext",
+      "dynamicId": null
+    }
+  }
+}
